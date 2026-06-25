@@ -101,6 +101,12 @@ TU_ATTR_WEAK void tud_hid_report_failed_cb(uint8_t instance, hid_report_type_t r
   (void) xferred_bytes;
 }
 
+TU_ATTR_WEAK void tud_hid_output_cb(uint8_t instance, uint8_t endpoint, uint8_t const* buffer, uint16_t bufsize) {
+  (void) endpoint;
+  // Use old function when function is not implemented.
+  tud_hid_set_report_cb(instance, 0, HID_REPORT_TYPE_OUTPUT, buffer, bufsize);
+}
+
 //--------------------------------------------------------------------+
 // APPLICATION API
 //--------------------------------------------------------------------+
@@ -407,7 +413,7 @@ bool hidd_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_
   } else {
     // Output report
     if (XFER_RESULT_SUCCESS == result) {
-      tud_hid_set_report_cb(instance, 0, HID_REPORT_TYPE_OUTPUT, p_epbuf->epout, (uint16_t)xferred_bytes);
+      tud_hid_output_cb(instance, ep_addr, p_epbuf->epout, (uint16_t)xferred_bytes);
     } else {
       tud_hid_report_failed_cb(instance, HID_REPORT_TYPE_OUTPUT, p_epbuf->epout, (uint16_t) xferred_bytes);
     }
